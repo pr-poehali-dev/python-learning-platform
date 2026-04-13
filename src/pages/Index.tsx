@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-type Section = "home" | "courses" | "lessons" | "practice";
+type Section = "home" | "courses" | "lessons" | "practice" | "about";
 
 const courses = [
   {
@@ -172,6 +172,7 @@ export default function Index() {
     { key: "courses", label: "Курсы", icon: "BookOpen" },
     { key: "lessons", label: "Уроки", icon: "FileCode" },
     { key: "practice", label: "Практика", icon: "Terminal" },
+    { key: "about", label: "О создателе", icon: "User" },
   ];
 
   const lessonQuizIdx = Math.min(activeLesson.id - 1, quizQuestions.length - 1);
@@ -658,6 +659,80 @@ export default function Index() {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ABOUT */}
+        {activeSection === "about" && (
+          <div className="animate-fade-in max-w-2xl mx-auto pt-6">
+            {/* Avatar + name */}
+            <div className="flex flex-col items-center text-center mb-12">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center mb-5 border-4 border-white shadow-md">
+                <span className="text-4xl">👨‍💻</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-950 tracking-tight mb-1">Алексей Петров</h1>
+              <p className="text-indigo-600 font-mono text-sm mb-3">Python-разработчик · Преподаватель</p>
+              <div className="flex items-center gap-1.5 text-gray-400 text-sm">
+                <Icon name="MapPin" size={14} />
+                <span>Москва, Россия</span>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="border border-gray-100 rounded-xl p-6 mb-4">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">О себе</h2>
+              <p className="text-gray-700 leading-relaxed text-sm">
+                Пишу на Python 8 лет. Прошёл путь от джуниора до тимлида в финтех-стартапе, потом понял, что хочу учить людей — и создал эту платформу. Считаю, что программирование должно быть доступным и понятным каждому.
+              </p>
+            </div>
+
+            {/* Skills */}
+            <div className="border border-gray-100 rounded-xl p-6 mb-4">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Навыки</h2>
+              <div className="flex flex-wrap gap-2">
+                {["Python", "FastAPI", "Django", "PostgreSQL", "Docker", "Machine Learning", "Data Science", "Алгоритмы"].map((skill) => (
+                  <span key={skill} className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1.5 rounded-full font-mono">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[
+                { value: "8+", label: "лет опыта" },
+                { value: "1200+", label: "студентов" },
+                { value: "4.9", label: "рейтинг" },
+              ].map((s) => (
+                <div key={s.label} className="border border-gray-100 rounded-xl p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-950 font-mono">{s.value}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Contacts */}
+            <div className="border border-gray-100 rounded-xl p-6">
+              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Контакты</h2>
+              <div className="space-y-3">
+                {[
+                  { icon: "Mail", label: "Email", value: "alex@pylearn.ru" },
+                  { icon: "Github", label: "GitHub", value: "github.com/alex-petrov" },
+                  { icon: "MessageCircle", label: "Telegram", value: "@alex_python" },
+                ].map((c) => (
+                  <div key={c.label} className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                      <Icon name={c.icon as string} size={14} className="text-gray-500" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400">{c.label}</div>
+                      <div className="text-sm text-gray-800 font-mono">{c.value}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
