@@ -543,12 +543,16 @@ export default function Index() {
                     onClick={() => {
                       markLessonDone(activeLesson.id);
                       const idx = lessons.findIndex(l => l.id === activeLesson.id);
-                      if (idx < lessons.length - 1) { setActiveLesson(lessons[idx + 1]); setLessonQuizAnswer(null); }
+                      if (idx < lessons.length - 1) {
+                        setActiveLesson(lessons[idx + 1]);
+                        setLessonQuizAnswer(null);
+                      } else {
+                        setActiveSection("practice");
+                      }
                     }}
-                    disabled={activeLesson.id === lessons[lessons.length - 1].id}
-                    className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                   >
-                    Следующий →
+                    {activeLesson.id === lessons[lessons.length - 1].id ? "К практике →" : "Следующий →"}
                   </button>
                 </div>
               </div>
