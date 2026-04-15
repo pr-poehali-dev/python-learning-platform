@@ -138,8 +138,14 @@ numbers = [1, 2, 3, 4, 5]
 print(calculate_sum(numbers))  # 15`;
 
 export default function Index() {
+  const [user, setUser] = useState<string | null>(() => localStorage.getItem("pylearn_user"));
+  const [loginInput, setLoginInput] = useState("");
   const [activeSection, setActiveSection] = useState<Section>("home");
   const [activeLesson, setActiveLesson] = useState(lessons[0]);
+  const [completedLessons, setCompletedLessons] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem("pylearn_completed");
+    return saved ? new Set(JSON.parse(saved)) : new Set<number>();
+  });
   const [quizCurrent, setQuizCurrent] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([null, null, null]);
   const [quizDone, setQuizDone] = useState(false);
@@ -148,6 +154,28 @@ export default function Index() {
   const [checked, setChecked] = useState(false);
 
   const [lessonQuizAnswer, setLessonQuizAnswer] = useState<number | null>(null);
+
+  const markLessonDone = (lessonId: number) => {
+    setCompletedLessons((prev) => {
+      const next = new Set(prev);
+      next.add(lessonId);
+      localStorage.setItem("pylearn_completed", JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const handleLogin = () => {
+    const name = loginInput.trim();
+    if (!name) return;
+    localStorage.setItem("pylearn_user", name);
+    setUser(name);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("pylearn_user");
+    setUser(null);
+    setLoginInput("");
+  };
 
   const handleQuizAnswer = (optionIdx: number) => {
     if (quizAnswers[quizCurrent] !== null) return;
@@ -178,6 +206,39 @@ export default function Index() {
   const lessonQuizIdx = Math.min(activeLesson.id - 1, quizQuestions.length - 1);
   const currentLessonQ = quizQuestions[lessonQuizIdx];
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <span className="text-indigo-600 font-mono font-bold text-3xl tracking-tight">
+              py<span className="text-gray-900">learn</span>
+            </span>
+            <p className="text-gray-400 text-sm mt-2">Введи своё имя, чтобы начать</p>
+          </div>
+          <div className="border border-gray-100 rounded-xl p-6 shadow-sm">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Имя</label>
+            <input
+              type="text"
+              value={loginInput}
+              onChange={(e) => setLoginInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              placeholder="Например: Тимур"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-50 transition-all mb-4"
+              autoFocus
+            />
+            <button
+              onClick={handleLogin}
+              className="w-full bg-indigo-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Войти
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white font-ibm">
       {/* Nav */}
@@ -205,9 +266,16 @@ export default function Index() {
               </button>
             ))}
           </div>
-          <button className="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
-            Войти
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500 hidden sm:inline font-medium">{user}</span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 border border-gray-200 text-gray-600 text-sm font-medium px-3 py-2 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <Icon name="LogOut" size={14} />
+              <span className="hidden sm:inline">Выйти</span>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -356,12 +424,12 @@ export default function Index() {
                   <div className="mt-5 pt-5 border-t border-gray-50">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-gray-400">Прогресс</span>
-                      <span className="text-xs font-mono text-gray-500">{course.id === 1 ? "2" : "0"}/{course.lessons}</span>
+                      <span className="text-xs font-mono text-gray-500">{course.id === 1 ? completedLessons.size : "0"}/{course.lessons}</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
-                        style={{ width: course.id === 1 ? `${(2 / course.lessons) * 100}%` : "0%", backgroundColor: course.color }}
+                        style={{ width: course.id === 1 ? `${(completedLessons.size / course.lessons) * 100}%` : "0%", backgroundColor: course.color }}
                       />
                     </div>
                   </div>
@@ -392,9 +460,9 @@ export default function Index() {
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        lesson.done ? "bg-emerald-100" : activeLesson.id === lesson.id ? "bg-indigo-100" : "bg-gray-100"
+                        completedLessons.has(lesson.id) ? "bg-emerald-100" : activeLesson.id === lesson.id ? "bg-indigo-100" : "bg-gray-100"
                       }`}>
-                        {lesson.done ? (
+                        {completedLessons.has(lesson.id) ? (
                           <Icon name="Check" size={12} className="text-emerald-600" />
                         ) : (
                           <span className="text-xs font-mono text-gray-400">{lesson.id}</span>
@@ -462,15 +530,22 @@ export default function Index() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => { setActiveLesson(lessons[Math.max(0, activeLesson.id - 2)]); setLessonQuizAnswer(null); }}
-                    disabled={activeLesson.id === 1}
+                    onClick={() => {
+                      const idx = lessons.findIndex(l => l.id === activeLesson.id);
+                      if (idx > 0) { setActiveLesson(lessons[idx - 1]); setLessonQuizAnswer(null); }
+                    }}
+                    disabled={activeLesson.id === lessons[0].id}
                     className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     ← Назад
                   </button>
                   <button
-                    onClick={() => { setActiveLesson(lessons[Math.min(lessons.length - 1, activeLesson.id)]); setLessonQuizAnswer(null); }}
-                    disabled={activeLesson.id === lessons.length}
+                    onClick={() => {
+                      markLessonDone(activeLesson.id);
+                      const idx = lessons.findIndex(l => l.id === activeLesson.id);
+                      if (idx < lessons.length - 1) { setActiveLesson(lessons[idx + 1]); setLessonQuizAnswer(null); }
+                    }}
+                    disabled={activeLesson.id === lessons[lessons.length - 1].id}
                     className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
                   >
                     Следующий →
