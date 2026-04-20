@@ -9,6 +9,7 @@ export default function Index() {
   const [user, setUser] = useState<string | null>(() => localStorage.getItem("pylearn_user"));
   const [loginInput, setLoginInput] = useState("");
   const [activeSection, setActiveSection] = useState<Section>("home");
+  const [activeCourseId, setActiveCourseId] = useState(1);
   const [completedLessons, setCompletedLessons] = useState<Set<number>>(() => {
     const saved = localStorage.getItem("pylearn_completed");
     return saved ? new Set(JSON.parse(saved)) : new Set<number>();
@@ -127,6 +128,8 @@ export default function Index() {
             completedLessons={completedLessons}
             markLessonDone={markLessonDone}
             setActiveSection={setActiveSection}
+            activeCourseId={activeCourseId}
+            setActiveCourseId={setActiveCourseId}
           />
         )}
 
