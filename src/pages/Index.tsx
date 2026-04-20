@@ -119,7 +119,11 @@ export default function Index() {
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         {activeSection === "home" && (
-          <SectionHome setActiveSection={setActiveSection} />
+          <SectionHome
+            setActiveSection={setActiveSection}
+            setActiveCourseId={setActiveCourseId}
+            completedLessons={completedLessons}
+          />
         )}
 
         {(activeSection === "courses" || activeSection === "lessons") && (
